@@ -1,4 +1,5 @@
 NewsApp with Dagger Hilt, MVVM, Offline support, coroutines, Sql Lite and Room, Live Data, DarkMode, Pagging3 and Webview Support
+Built with java version 17
 
 Listing Page
 
