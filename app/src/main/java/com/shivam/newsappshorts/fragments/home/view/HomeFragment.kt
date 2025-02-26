@@ -72,7 +72,7 @@ class HomeFragment : Fragment() {
                     }
 
                     if (bookmark == null) {
-                        bookmarkViewModel.insertBookmark(listingDataItem?.get(selectedPosition))
+                        bookmarkViewModel.insertBookmark(listingDataItem.get(selectedPosition))
                         ivBookmark.isSelected = true
 
                     } else {
@@ -81,18 +81,26 @@ class HomeFragment : Fragment() {
                     }
                 }
 
-
             }
 
             override fun isBookMark(selectedPosition: Int, ivBookmark: ImageView) {
 
                 val listingDataItem: List<Article> = moviesAdapter.snapshot().items
 
+
                 lifecycleScope.launch {
 
-                    val bookmark = bookmarkViewModel.getBookmark(
-                        listingDataItem?.getOrNull(selectedPosition)?.title ?: ""
-                    )
+                    val bookmark = listingDataItem[selectedPosition].let {
+                        bookmarkViewModel.getBookmark(it.title)
+                    }
+
+                    ivBookmark.isSelected = bookmark != null
+                }
+
+
+                /*lifecycleScope.launch {
+
+                    val bookmark = bookmarkViewModel.getBookmark(listingDataItem.getOrNull(selectedPosition)?.title)
 
                     if (bookmark == null) {
                         ivBookmark.isSelected = false
@@ -101,7 +109,7 @@ class HomeFragment : Fragment() {
                         ivBookmark.isSelected = true
 
                     }
-                }
+                }*/
 
             }
 
@@ -166,30 +174,32 @@ class HomeFragment : Fragment() {
             })
             getNews()
 
-
-
-            bookmarkViewModel.bookmarkIdsLiveData.observe(viewLifecycleOwner) {
-
-                val currentList = moviesAdapter.snapshot().items
-                for (item in currentList) {
-                    val position = currentList.indexOf(item)
-                    if (it.contains(item.title)) {
-                        moviesAdapter.notifyItemChanged(position)
-                    }
-                    val viewHolder =
-                        binding.newsRecyclerview.findViewHolderForAdapterPosition(position) as? RecyclerviewAdapter.ItemHomeViewHolder
-                    if (viewHolder?.binding?.ivBookmark?.isSelected == true) {
-                        if (!it.contains(item.title)) {
-                            moviesAdapter.notifyItemChanged(position)
-                        }
-                    }
-                }
-            }
-
+            observeBookmark()
 
             return binding.root
         } else {
+            observeBookmark()
             return binding.root
+        }
+    }
+
+    private fun observeBookmark() {
+        bookmarkViewModel.bookmarkIdsLiveData.observe(viewLifecycleOwner) {
+
+            val currentList = moviesAdapter.snapshot().items
+            for (item in currentList) {
+                val position = currentList.indexOf(item)
+                if (it.contains(item.title)) {
+                    moviesAdapter.notifyItemChanged(position)
+                }
+                val viewHolder =
+                    binding.newsRecyclerview.findViewHolderForAdapterPosition(position) as? RecyclerviewAdapter.ItemHomeViewHolder
+                if (viewHolder?.binding?.ivBookmark?.isSelected == true) {
+                    if (!it.contains(item.title)) {
+                        moviesAdapter.notifyItemChanged(position)
+                    }
+                }
+            }
         }
     }
 
@@ -228,7 +238,12 @@ class HomeFragment : Fragment() {
                 "Check this out: $link\n\nShared via ${context.getString(R.string.app_name)}"
             )
         }
-        context.startActivity(Intent.createChooser(shareIntent, "Share via ${context.getString(R.string.app_name)}"))
+        context.startActivity(
+            Intent.createChooser(
+                shareIntent,
+                "Share via ${context.getString(R.string.app_name)}"
+            )
+        )
     }
 
 
