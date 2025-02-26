@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.shivam.newsappshorts.databinding.ItemHomeRecyclerviewBinding
 import com.shivam.newsappshorts.fragments.home.model.Article
+import com.shivam.newsappshorts.utility.Utility.convertDateFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -82,15 +83,6 @@ class RecyclerviewAdapter(private val listener:Listener):PagingDataAdapter<Artic
             }
         }
 
-    }
-
-    fun convertDateFormat(dateStr: String): String {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }
-        val outputFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) // Example: "26 Feb 2025"
-        val date = inputFormat.parse(dateStr)
-        return date?.let { outputFormat.format(it) } ?: ""
     }
 
     interface Listener{

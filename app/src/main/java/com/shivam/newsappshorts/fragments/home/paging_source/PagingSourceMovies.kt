@@ -8,6 +8,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.shivam.newsappshorts.fragments.home.model.Article
 import com.shivam.newsappshorts.utility.Utility
+import com.shivam.newsappshorts.utility.Utility.isInternetAvailable
 import com.shivam.newsappshorts.utility.network.ApiInterface
 import java.io.IOException
 import javax.inject.Inject
@@ -52,12 +53,5 @@ class PagingSourceMovies @Inject constructor(
         return state.anchorPosition
     }
 
-    fun Context.isInternetAvailable(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-    }
 
 }

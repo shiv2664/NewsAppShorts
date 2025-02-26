@@ -21,6 +21,9 @@ import com.shivam.newsappshorts.databinding.FragmentBookmarksBinding
 import com.shivam.newsappshorts.fragments.bookmarks.adapter.BookmarkAdapter
 import com.shivam.newsappshorts.fragments.bookmarks.viewmodel.BookmarksViewModel
 import com.shivam.newsappshorts.fragments.home.model.Article
+import com.shivam.newsappshorts.utility.Utility
+import com.shivam.newsappshorts.utility.Utility.isInternetAvailable
+import com.shivam.newsappshorts.utility.Utility.shareWithDynamicLink
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlin.getValue
@@ -132,29 +135,6 @@ class Bookmarks : Fragment() {
         }
 
     }
-
-    fun shareWithDynamicLink(context: Context, title: String, link: String) {
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, "Read: $title")
-            putExtra(
-                Intent.EXTRA_TEXT,
-                "Check this out: $link\n\nShared via ${context.getString(R.string.app_name)}"
-            )
-        }
-        context.startActivity(Intent.createChooser(shareIntent, "Share via ${context.getString(R.string.app_name)}"))
-    }
-
-
-    fun Context.isInternetAvailable(): Boolean {
-        val connectivityManager =
-            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-    }
-
 
     override fun onDestroy() {
         super.onDestroy()

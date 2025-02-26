@@ -15,6 +15,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.shivam.newsappshorts.databinding.FragmentDetailsBinding
 import com.shivam.newsappshorts.fragments.detail.viewmodel.DetailsViewModel
+import com.shivam.newsappshorts.utility.Utility.isInternetAvailable
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -66,13 +67,6 @@ class DetailsFragment : Fragment() {
 
     }
 
-    fun Context.isInternetAvailable(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-    }
 
 
     override fun onDestroyView() {
