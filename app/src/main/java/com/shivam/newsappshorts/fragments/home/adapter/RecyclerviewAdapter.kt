@@ -57,6 +57,10 @@ class RecyclerviewAdapter(private val listener:Listener):PagingDataAdapter<Artic
                     }
                 }
 
+                holder.binding.share.setOnClickListener{
+                    listener.onItemShareClick(item)
+                }
+
                 holder.binding.ivBookmark.setOnClickListener {
 
                     listener.onItemBookmarkClick(
@@ -81,6 +85,7 @@ class RecyclerviewAdapter(private val listener:Listener):PagingDataAdapter<Artic
         fun onItemBookmarkClick(selectedPosition: Int, ivBookmark: ImageView)
         fun isBookMark(selectedPosition: Int, ivBookmark: ImageView)
         fun onItemClick(item: Article)
+        fun onItemShareClick(item: Article?)
     }
 
     inner class ItemHomeViewHolder(val binding: ItemHomeRecyclerviewBinding):

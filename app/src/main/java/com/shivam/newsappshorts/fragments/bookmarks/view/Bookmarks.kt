@@ -1,6 +1,7 @@
 package com.shivam.newsappshorts.fragments.bookmarks.view
 
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
@@ -26,21 +27,21 @@ import kotlin.getValue
 
 @AndroidEntryPoint
 class Bookmarks : Fragment() {
-    private var _binding: FragmentBookmarksBinding?=null
-    private val binding get()=_binding!!
+    private var _binding: FragmentBookmarksBinding? = null
+    private val binding get() = _binding!!
 
     private val bookmarkViewModel: BookmarksViewModel by activityViewModels()
     private var bookmarkList: List<Article>? = null
 
 
-    private var adapter: BookmarkAdapter?=null
+    private var adapter: BookmarkAdapter? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        if (_binding==null){
-            _binding = FragmentBookmarksBinding.inflate(inflater,container,false)
+        if (_binding == null) {
+            _binding = FragmentBookmarksBinding.inflate(inflater, container, false)
 
             adapter = BookmarkAdapter(object : BookmarkAdapter.Listener {
 
@@ -48,8 +49,8 @@ class Bookmarks : Fragment() {
 
                     if (requireContext().isInternetAvailable()) {
                         val args = Bundle()
-                        args.putString("url",item.url)
-                        findNavController().navigate(R.id.action_bookmark_to_detailsFragment,args)
+                        args.putString("url", item.url)
+                        findNavController().navigate(R.id.action_bookmark_to_detailsFragment, args)
                     } else {
                         Toast.makeText(
                             requireActivity(),
@@ -60,6 +61,10 @@ class Bookmarks : Fragment() {
 
                 }
 
+                override fun onItemShareClick(item: Article?) {
+                    shareWithDynamicLink(requireContext(), item?.title?:"",item?.url?:"")
+                }
+
                 override fun onItemBookmarkClick(selectedPosition: Int, ivBookmark: ImageView) {
 
                     val listingDataItem: List<Article>? = bookmarkList
@@ -67,7 +72,7 @@ class Bookmarks : Fragment() {
                     lifecycleScope.launch {
 
                         val bookmark = listingDataItem?.get(selectedPosition)?.let {
-                                bookmarkViewModel.getBookmark(it.title)
+                            bookmarkViewModel.getBookmark(it.title)
 
                         }
 
@@ -86,11 +91,13 @@ class Bookmarks : Fragment() {
 
                 override fun isBookMark(selectedPosition: Int, ivBookmark: ImageView) {
 
-                    val listingDataItem: List<Article>? =bookmarkList
+                    val listingDataItem: List<Article>? = bookmarkList
 
                     lifecycleScope.launch {
 
-                        val bookmark=bookmarkViewModel.getBookmark(listingDataItem?.get(selectedPosition)?.title?:"")
+                        val bookmark = bookmarkViewModel.getBookmark(
+                            listingDataItem?.get(selectedPosition)?.title ?: ""
+                        )
 
                         if (bookmark == null) {
                             ivBookmark.setBackgroundResource(R.drawable.baseline_bookmark_border)
@@ -120,14 +127,28 @@ class Bookmarks : Fragment() {
 
 
             return binding.root
-        }else{
+        } else {
             return binding.root
         }
 
     }
 
+    fun shareWithDynamicLink(context: Context, title: String, link: String) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "Read: $title")
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "Check this out: $link\n\nShared via ${context.getString(R.string.app_name)}"
+            )
+        }
+        context.startActivity(Intent.createChooser(shareIntent, "Share via ${context.getString(R.string.app_name)}"))
+    }
+
+
     fun Context.isInternetAvailable(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
@@ -137,6 +158,6 @@ class Bookmarks : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        _binding=null
+        _binding = null
     }
 }

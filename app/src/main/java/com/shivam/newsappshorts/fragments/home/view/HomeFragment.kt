@@ -1,6 +1,7 @@
 package com.shivam.newsappshorts.fragments.home.view
 
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
@@ -50,9 +51,13 @@ class HomeFragment : Fragment() {
         RecyclerviewAdapter(object : RecyclerviewAdapter.Listener {
             override fun onItemClick(item: Article) {
                 val args = Bundle()
-                args.putString("url",item.url)
+                args.putString("url", item.url)
                 findNavController().navigate(R.id.action_homeFragment_to_detailsFragment, args)
 
+            }
+
+            override fun onItemShareClick(item: Article?) {
+                shareWithDynamicLink(requireContext(), item?.title ?: "", item?.url ?: "")
             }
 
             override fun onItemBookmarkClick(selectedPosition: Int, ivBookmark: ImageView) {
@@ -85,13 +90,15 @@ class HomeFragment : Fragment() {
 
                 lifecycleScope.launch {
 
-                    val bookmark=bookmarkViewModel.getBookmark(listingDataItem?.getOrNull(selectedPosition)?.title?:"")
+                    val bookmark = bookmarkViewModel.getBookmark(
+                        listingDataItem?.getOrNull(selectedPosition)?.title ?: ""
+                    )
 
                     if (bookmark == null) {
-                        ivBookmark.isSelected=false
+                        ivBookmark.isSelected = false
 
                     } else {
-                        ivBookmark.isSelected=true
+                        ivBookmark.isSelected = true
 
                     }
                 }
@@ -102,8 +109,6 @@ class HomeFragment : Fragment() {
     }
 
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -112,20 +117,24 @@ class HomeFragment : Fragment() {
         if (_binding == null) {
             _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-            if (!requireContext().isInternetAvailable()){
-                binding.noInternet.visibility= View.VISIBLE
-                binding.retry.visibility= View.VISIBLE
+            if (!requireContext().isInternetAvailable()) {
+                binding.noInternet.visibility = View.VISIBLE
+                binding.retry.visibility = View.VISIBLE
             }
 
-            binding.retry.setOnClickListener{
-                if (!requireActivity().isInternetAvailable()){
-                    Toast.makeText(requireActivity(),"No Internet Please check again!", Toast.LENGTH_SHORT).show()
+            binding.retry.setOnClickListener {
+                if (!requireActivity().isInternetAvailable()) {
+                    Toast.makeText(
+                        requireActivity(),
+                        "No Internet Please check again!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@setOnClickListener
 
                 }
 
-                binding.noInternet.visibility= View.GONE
-                binding.retry.visibility= View.GONE
+                binding.noInternet.visibility = View.GONE
+                binding.retry.visibility = View.GONE
                 getNews()
             }
 
@@ -133,8 +142,13 @@ class HomeFragment : Fragment() {
 
             moviesAdapter.setSection("India")
 
-            binding.searchBar.addTextChangedListener(object :TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            binding.searchBar.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
                 }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -142,7 +156,7 @@ class HomeFragment : Fragment() {
 
                 override fun afterTextChanged(s: Editable?) {
                     s?.length?.let {
-                        if (it>=3){
+                        if (it >= 3) {
                             getNews(s.toString())
                             moviesAdapter.setSection(s.toString())
                         }
@@ -162,7 +176,8 @@ class HomeFragment : Fragment() {
                     if (it.contains(item.title)) {
                         moviesAdapter.notifyItemChanged(position)
                     }
-                    val viewHolder = binding.newsRecyclerview.findViewHolderForAdapterPosition(position) as? RecyclerviewAdapter.ItemHomeViewHolder
+                    val viewHolder =
+                        binding.newsRecyclerview.findViewHolderForAdapterPosition(position) as? RecyclerviewAdapter.ItemHomeViewHolder
                     if (viewHolder?.binding?.ivBookmark?.isSelected == true) {
                         if (!it.contains(item.title)) {
                             moviesAdapter.notifyItemChanged(position)
@@ -178,7 +193,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun getNews(query: String="India"){
+    private fun getNews(query: String = "India") {
         lifecycleScope.launch {
             viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.getData("84c8ffe674244229b62799d33774504a", query).collectLatest {
@@ -191,7 +206,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun initAdapter() {
-        val linearLayoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        val linearLayoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         binding.newsRecyclerview.adapter = moviesAdapter
         binding.newsRecyclerview.layoutManager = linearLayoutManager
         binding.newsRecyclerview.setHasFixedSize(true)
@@ -203,8 +219,22 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 
+    fun shareWithDynamicLink(context: Context, title: String, link: String) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "Read: $title")
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "Check this out: $link\n\nShared via ${context.getString(R.string.app_name)}"
+            )
+        }
+        context.startActivity(Intent.createChooser(shareIntent, "Share via ${context.getString(R.string.app_name)}"))
+    }
+
+
     fun Context.isInternetAvailable(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
