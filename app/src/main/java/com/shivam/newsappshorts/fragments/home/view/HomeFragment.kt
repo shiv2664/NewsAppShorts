@@ -35,6 +35,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -245,7 +248,6 @@ class HomeFragment : Fragment() {
             )
         )
     }
-
 
     fun Context.isInternetAvailable(): Boolean {
         val connectivityManager =

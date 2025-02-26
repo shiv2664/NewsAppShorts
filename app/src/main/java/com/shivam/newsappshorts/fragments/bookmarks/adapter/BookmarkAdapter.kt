@@ -9,6 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.shivam.newsappshorts.databinding.ItemHomeRecyclerviewBinding
 import com.shivam.newsappshorts.fragments.home.model.Article
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.collections.toMutableList
 
 class BookmarkAdapter(private val listener: Listener) :
@@ -79,7 +82,8 @@ class BookmarkAdapter(private val listener: Listener) :
 
                 holder.binding.tvPoliticsSubHeader.text = item?.title
                 context?.let { Glide.with(it).load(item?.urlToImage).into(holder.binding.imgShapeAble) }
-                holder.binding.tvDate.text=item.publishedAt
+
+                holder.binding.tvDate.text=convertDateFormat(item.publishedAt)
 
                 holder.binding.root.setOnClickListener {
                     listener.onItemClick(item)
@@ -107,6 +111,15 @@ class BookmarkAdapter(private val listener: Listener) :
             }
         }
 
+    }
+
+    fun convertDateFormat(dateStr: String): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        val outputFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) // Example: "26 Feb 2025"
+        val date = inputFormat.parse(dateStr)
+        return date?.let { outputFormat.format(it) } ?: ""
     }
 
     interface Listener {
