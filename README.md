@@ -7,8 +7,7 @@ Listing Page Dark
 ![ViratKohli](https://github.com/user-attachments/assets/5018fa40-9cc8-4123-b7b9-eea8d9dc6ad2)
 
 Bookmark functionality
-![saved](https://github.com/user-attachments/assets/99bddc19-5d32-4449-a988-f8ca2d4ff923)
-
+![Favorites](https://github.com/user-attachments/assets/b41bcffa-de5f-4ef6-b28b-97d63352cafd)
 
 Details Page
 ![details](https://github.com/user-attachments/assets/5b38e078-6184-4cc9-ab76-83e81069083f)
