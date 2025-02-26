@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragment"
+        android:enabled="true"
+        android:title="Home"
+        android:icon="@drawable/baseline_brightness_1_24"/>
+    <item
+        android:id="@+id/bookmark"
+        android:enabled="true"
+        android:title="Favourites"
+        android:icon="@drawable/baseline_bookmark_24"/>
+
+</menu>
